@@ -11,6 +11,7 @@ import (
 )
 
 type Loger struct {
+	*logrus.Logger
 }
 
 const (
@@ -55,16 +56,19 @@ func (m *MyFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 }
 
 func (l *Loger) Init(t EULogType, LogLevel EULogLevel, dir, id string) *Loger {
-	logrus.SetFormatter(&MyFormatter{})
-	logrus.SetReportCaller(true)
-	logrus.SetLevel(logrus.Level(LogLevel))
+
+	l.Logger = logrus.New()
+	l.Logger.SetFormatter(&MyFormatter{})
+	l.Logger.SetReportCaller(true)
+	l.Logger.SetLevel(logrus.Level(LogLevel))
 
 	if t == ECLog2StdFile {
 		if dir != "" {
 			dir = "log"
 		}
 		logFile := filepath.Join(dir, id+".log")
-		logrus.SetOutput(&lumberjack.Logger{
+
+		l.Logger.SetOutput(&lumberjack.Logger{
 			Filename:   logFile, // 日志文件路径
 			MaxSize:    1,       // 单个日志文件的最大大小（MB）
 			MaxBackups: 10,      // 保留的最大日志文件个数
@@ -74,52 +78,4 @@ func (l *Loger) Init(t EULogType, LogLevel EULogLevel, dir, id string) *Loger {
 	}
 
 	return l
-}
-
-func (l *Loger) Trace(v ...interface{}) {
-	logrus.Trace(v...)
-}
-
-func (l *Loger) Debug(v ...interface{}) {
-	logrus.Debug(v...)
-}
-
-func (l *Loger) Info(v ...interface{}) {
-	logrus.Info(v...)
-}
-
-func (l *Loger) Warn(v ...interface{}) {
-	logrus.Warn(v...)
-}
-
-func (l *Loger) Error(v ...interface{}) {
-	logrus.Error(v...)
-}
-
-func (l *Loger) Fatal(v ...interface{}) {
-	logrus.Fatal(v...)
-}
-
-func (l *Loger) Tracef(format string, v ...interface{}) {
-	logrus.Tracef(format, v...)
-}
-
-func (l *Loger) Debugf(format string, v ...interface{}) {
-	logrus.Debugf(format, v...)
-}
-
-func (l *Loger) Infof(format string, v ...interface{}) {
-	logrus.Infof(format, v...)
-}
-
-func (l *Loger) Warnf(format string, v ...interface{}) {
-	logrus.Warnf(format, v...)
-}
-
-func (l *Loger) Errorf(format string, v ...interface{}) {
-	logrus.Errorf(format, v...)
-}
-
-func (l *Loger) Fatalf(format string, v ...interface{}) {
-	logrus.Fatalf(format, v...)
 }
